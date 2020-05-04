@@ -28,13 +28,16 @@ class EpubView extends Component {
     if (this.book) {
       this.book.destroy();
     }
-    var oReq = new XMLHttpRequest();
-    oReq.open("GET", url, true);
-    console.log(url)
-    oReq.responseType = "arraybuffer";
-    oReq.onload = function (oEvent) {
-      var arraybuffer = oReq.response
-      console.log(arraybuffer)
+    var request = new XMLHttpRequest();
+    request.open('GET', url, true);
+    request.responseType = "arraybuffer"
+    request.send(null);
+    request.onreadystatechange = function () {
+      console.log(request)
+      if (request.readyState === 4 && request.status === 200) {
+        var type = request.getResponseHeader('Content-Type');
+        console.log("#######", type)
+      }
     }
     this.book = new Epub(url, epubInitOptions);
     this.book.loaded.navigation.then(({ toc }) => {
