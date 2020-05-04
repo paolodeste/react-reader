@@ -32,7 +32,7 @@ class EpubView extends Component {
     request.open('GET', url, true);
     request.responseType = "arraybuffer"
     request.send(null);
-    request.onreadystatechange = function () {
+    request.onload = function () {
       console.log(request)
       if (request.readyState === 4 && request.status === 200) {
         var type = request.getResponseHeader('Content-Type');
