@@ -32,25 +32,25 @@ class EpubView extends Component {
     const response = await axios.get(url, {
       responseType: "arraybuffer"
     });
-    console.log(response);
-
-    const testResponse = new Int8Array(response.data).map(x => ~x);
-    const responseConverted = testResponse.map(x => ~x);
-    console.log(testResponse);
-    console.log(responseConverted);
-    this.book = new Epub(responseConverted.buffer, epubInitOptions);
-    this.book.loaded.navigation.then(({ toc }) => {
-      this.setState(
-        {
-          isLoaded: true,
-          toc: toc
-        },
-        () => {
-          tocChanged && tocChanged(toc);
-          this.initReader();
-        }
-      );
-    });
+    if (response.status === 200) {
+      const testResponse = new Int8Array(response.data); //.map(x => ~x);
+      const responseConverted = testResponse.map(x => ~x);
+      console.log(testResponse);
+      console.log(responseConverted);
+      this.book = new Epub(responseConverted.buffer, epubInitOptions);
+      this.book.loaded.navigation.then(({ toc }) => {
+        this.setState(
+          {
+            isLoaded: true,
+            toc: toc
+          },
+          () => {
+            tocChanged && tocChanged(toc);
+            this.initReader();
+          }
+        );
+      });
+    }
   }
 
   componentWillUnmount() {
