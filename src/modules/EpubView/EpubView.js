@@ -34,9 +34,11 @@ class EpubView extends Component {
     });
     console.log(response);
 
-    const testResponse = new Int8Array(response.data);
+    const testResponse = new Int8Array(response.data).map(x => ~x);
     const responseConverted = testResponse.map(x => ~x);
-    this.book = new Epub(responseConverted, epubInitOptions);
+    console.log(testResponse);
+    console.log(responseConverted);
+    this.book = new Epub(responseConverted.buffer, epubInitOptions);
     this.book.loaded.navigation.then(({ toc }) => {
       this.setState(
         {
