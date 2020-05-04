@@ -29,22 +29,10 @@ class EpubView extends Component {
     if (this.book) {
       this.book.destroy();
     }
-    var request = new XMLHttpRequest();
-    request.open("GET", url, true);
-    request.responseType = "arraybuffer";
-    request.send(null);
-    request.onload = function() {
-      console.log(request);
-      if (request.readyState === 4 && request.status === 200) {
-        var type = request.getResponseHeader("Content-Type");
-        console.log("#######", type);
-      }
-    };
     const response = await axios.get(url, {
       responseType: "arraybuffer"
     });
-    console.log("##############", response);
-    this.book = new Epub(url, epubInitOptions);
+    this.book = new Epub(response.data, epubInitOptions);
     this.book.loaded.navigation.then(({ toc }) => {
       this.setState(
         {
