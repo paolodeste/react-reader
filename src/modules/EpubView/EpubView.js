@@ -37,21 +37,22 @@ class EpubView extends Component {
       if (request.readyState === 4 && request.status === 200) {
         var type = request.getResponseHeader('Content-Type');
         console.log("#######", type)
+        this.book = new Epub(url, epubInitOptions);
+        this.book.loaded.navigation.then(({ toc }) => {
+          this.setState(
+            {
+              isLoaded: true,
+              toc: toc
+            },
+            () => {
+              tocChanged && tocChanged(toc);
+              this.initReader();
+            }
+          );
+        });
       }
     }
-    this.book = new Epub(url, epubInitOptions);
-    this.book.loaded.navigation.then(({ toc }) => {
-      this.setState(
-        {
-          isLoaded: true,
-          toc: toc
-        },
-        () => {
-          tocChanged && tocChanged(toc);
-          this.initReader();
-        }
-      );
-    });
+
   }
 
   componentWillUnmount() {
