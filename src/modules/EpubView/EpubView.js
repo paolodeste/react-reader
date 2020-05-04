@@ -2,6 +2,7 @@ import React, { Component } from "react";
 import PropTypes from "prop-types";
 import Epub from "epubjs/lib/index";
 import defaultStyles from "./style";
+const axios = require("axios");
 
 global.ePub = Epub; // Fix for v3 branch of epub.js -> needs ePub to by a global var
 
@@ -15,7 +16,7 @@ class EpubView extends Component {
     this.viewerRef = React.createRef();
     this.location = props.location;
     this.book = this.rendition = this.prevPage = this.nextPage = null;
-    this.testBook = null
+    this.testBook = null;
   }
 
   componentDidMount() {
@@ -23,36 +24,39 @@ class EpubView extends Component {
     document.addEventListener("keyup", this.handleKeyPress, false);
   }
 
-  initBook(first) {
+  async initBook(first) {
     const { url, tocChanged, epubInitOptions } = this.props;
     if (this.book) {
       this.book.destroy();
     }
     var request = new XMLHttpRequest();
-    request.open('GET', url, true);
-    request.responseType = "arraybuffer"
+    request.open("GET", url, true);
+    request.responseType = "arraybuffer";
     request.send(null);
-    request.onload = function () {
-      console.log(request)
+    request.onload = function() {
+      console.log(request);
       if (request.readyState === 4 && request.status === 200) {
-        var type = request.getResponseHeader('Content-Type');
-        console.log("#######", type)
-        this.book = new Epub(url, epubInitOptions);
-        this.book.loaded.navigation.then(({ toc }) => {
-          this.setState(
-            {
-              isLoaded: true,
-              toc: toc
-            },
-            () => {
-              tocChanged && tocChanged(toc);
-              this.initReader();
-            }
-          );
-        });
+        var type = request.getResponseHeader("Content-Type");
+        console.log("#######", type);
       }
-    }
-
+    };
+    const response = await axios.get(url, {
+      responseType: "arraybuffer"
+    });
+    console.log("##############", response);
+    this.book = new Epub(url, epubInitOptions);
+    this.book.loaded.navigation.then(({ toc }) => {
+      this.setState(
+        {
+          isLoaded: true,
+          toc: toc
+        },
+        () => {
+          tocChanged && tocChanged(toc);
+          this.initReader();
+        }
+      );
+    });
   }
 
   componentWillUnmount() {
