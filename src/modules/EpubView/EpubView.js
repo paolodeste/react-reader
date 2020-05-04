@@ -15,6 +15,7 @@ class EpubView extends Component {
     this.viewerRef = React.createRef();
     this.location = props.location;
     this.book = this.rendition = this.prevPage = this.nextPage = null;
+    this.testBook = null
   }
 
   componentDidMount() {
@@ -27,19 +28,26 @@ class EpubView extends Component {
     if (this.book) {
       this.book.destroy();
     }
-    this.book = new Epub(url, epubInitOptions);
-    this.book.loaded.navigation.then(({ toc }) => {
-      this.setState(
-        {
-          isLoaded: true,
-          toc: toc
-        },
-        () => {
-          tocChanged && tocChanged(toc);
-          this.initReader();
-        }
-      );
-    });
+    var oReq = new XMLHttpRequest();
+    oReq.open("GET", url, true);
+    oReq.responseType = "arraybuffer";
+    oReq.onload = function (oEvent) {
+      var arraybuffer = oReq.response
+      console.log(arraybuffer)
+      this.book = new Epub(url, epubInitOptions);
+      this.book.loaded.navigation.then(({ toc }) => {
+        this.setState(
+          {
+            isLoaded: true,
+            toc: toc
+          },
+          () => {
+            tocChanged && tocChanged(toc);
+            this.initReader();
+          }
+        );
+      });
+    }
   }
 
   componentWillUnmount() {
